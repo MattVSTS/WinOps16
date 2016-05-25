@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    // add your LaunchDarkly scripts from here: https://app.launchdarkly.com/quickstart#/install-sdk/javascript
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("WinOps Calculator", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul id="featuresList" class="nav navbar-nav"/>
+            </div>
+            <input type="text" name="login" value="" />
+            <input onclick="Login()" type="submit" value="Login" />
+            <input onclick="Logout()" type="submit" value="Logout" />
+        </div>
+    </div>
+    <script>
+    function enableFlags() {
+        var user = localStorage.getItem("user");
+        ldclient.identify({ "key": user });
+        var sum = ldclient.toggle("feature-sum", false);
+        var subtract = ldclient.toggle("feature-subtract", false);
+        var fl = document.getElementById("featuresList");
+        while (fl.firstChild) {
+            fl.removeChild(fl.firstChild);
+        }
+        if (sum) {
+            var li = document.createElement("li");
+            li.id = "feature-sum"
+            li.innerHTML = '<a href="/Home/Sum">Sum</a>'
+            fl.appendChild(li);
+        }
+        if (subtract) {
+            var li = document.createElement("li");
+            li.id = "feature-subtract"
+            li.innerHTML = '<a href="/Home/Subtract">Subtract</a>'
+            fl.appendChild(li);
+        }
+    }
+    </script>
+    <script>enableFlags()</script>
+    <script>
+        function Login() {
+            var user = localStorage.getItem("user");
+            if (user == null || user == "null" || user == "") {
+                localStorage.setItem("user", login.value)
+            }
+            enableFlags()
+        }        
+    </script>
+    <script>
+        function Logout() {
+            localStorage.setItem("user", null)
+            enableFlags()
+        }
+    </script>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>WinOps 2016 - London</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
